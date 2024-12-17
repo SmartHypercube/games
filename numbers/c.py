@@ -26,3 +26,6 @@ def load_high_score(name: str) -> typing.Any:
 
 def save_high_score(name: str, score: typing.Any):
     ...
+
+def pause():
+    ...

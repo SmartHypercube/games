@@ -113,6 +113,9 @@ async function main() {
     save_high_score: (s, v) => {
       localStorage.setItem(`high_score_${s}`, JSON.stringify(v));
     },
+    pause: () => {
+      pause(true);
+    },
   });
 
   await pyodide.runPythonAsync(`
@@ -131,15 +134,14 @@ async function main() {
     }
   }
   window.addEventListener('keydown', e => {
-    console.log('keydown', performance.now());
     if (e.key === ' ') {
       e.preventDefault();
+      pause(false);
       updateButton(0, true);
       interacted = true;
     }
   });
   window.addEventListener('keyup', e => {
-    console.log('keyup', performance.now());
     if (e.key === ' ') {
       e.preventDefault();
       updateButton(0, false);
@@ -148,7 +150,14 @@ async function main() {
   window.addEventListener('pointerdown', e => {
     if (e.button === 0) {
       e.preventDefault();
+      pause(false);
       updateButton(0, true);
+      if (e.target === canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width);
+        const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height);
+        game.event('pointerdown', 0, [x, y]);
+      }
       interacted = true;
     }
   });
@@ -160,7 +169,14 @@ async function main() {
   });
   window.addEventListener('touchstart', e => {
     e.preventDefault();
+    pause(false);
     updateButton(0, true);
+    if (e.target === canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.touches[0].clientX - rect.left) * canvas.width / rect.width);
+      const y = Math.floor((e.touches[0].clientY - rect.top) * canvas.height / rect.height);
+      game.event('pointerdown', 0, [x, y]);
+    }
     interacted = true;
   });
   window.addEventListener('touchend', e => {
@@ -168,15 +184,33 @@ async function main() {
     updateButton(0, false);
   });
 
+  let paused = false;
+  function pause(state) {
+    if (paused !== state) {
+      paused = state;
+      game.event('pause', 0, state);
+    }
+  }
+  window.addEventListener('blur', e => {
+    pause(true);
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' || e.key === 'p') {
+      e.preventDefault();
+      pause(!paused);
+    }
+  });
+
   let tickTime = 0;
   function tick() {
-    game.tick();
+    if (!paused) {
+      game.tick();
+    }
     for (let i = 0; i < screen.length; i++) {
       imageData32[i] = palette32[screen[i]];
     }
     ctx.putImageData(imageData8, 0, 0);
     document.body.style.backgroundColor = `rgb(${palette8[borderColor * 4]}, ${palette8[borderColor * 4 + 1]}, ${palette8[borderColor * 4 + 2]})`;
-
     const time = performance.now();
     document.getElementById('debug').textContent = 'Tick time: ' + Array(Math.min(1000, Math.max(0, Math.round(time - tickTime)))).fill('#').join('');
     tickTime = Math.max(tickTime + 1000 / 60, time);

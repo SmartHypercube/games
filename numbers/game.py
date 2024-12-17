@@ -20,6 +20,16 @@ def event(type, id, data):
     if type == 'button' and id == 0:
         c.sfx(sfx_press if data else sfx_release)
         start = False
+    if type == 'pause' and data:
+        c.set_palette_map([13])
+        for i in range(0, 128, 32):
+            for j in range(0, 128, 32):
+                c.draw_sprite(i, j, 24, 57, 32, 32)
+        c.fill_rect(51, 56, 25, 16, 13)
+        c.set_palette_map([0])
+        c.draw_sprite(52, 57, 0, 56, 23, 14)
+    if type == 'pointerdown' and id == 0 and 112 <= data[0] < 128 and 0 <= data[1] < 16:
+        c.pause()
 
 
 def _draw_block(x, y, opeartor, value, face_color, border_color, shadow_color, text_color):
@@ -459,8 +469,12 @@ def draw():
         for i, char in enumerate(score_s):
             c.draw_sprite(24 + i * 4, 6, (ord(char) - 48) * 3, 0, 3, 5)
     if pause or start:
+        c.fill_rect(28, 55, 71, 9, 12)
+        c.fill_rect(40, 64, 51, 9, 12)
         c.draw_sprite(29, 56, 0, 42, 69, 7)
         c.draw_sprite(41, 65, 0, 49, 45, 7)
+    c.set_palette_map([14])
+    c.draw_sprite(112, 0, 1, 72, 16, 16)
 
 
 def restart():
