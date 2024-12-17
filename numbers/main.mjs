@@ -136,7 +136,6 @@ async function main() {
   window.addEventListener('keydown', e => {
     if (e.key === ' ') {
       e.preventDefault();
-      const pausedBefore = paused;
       updateButton(0, true);
       if (pausedBefore) {
         pause(false);
@@ -153,7 +152,6 @@ async function main() {
   window.addEventListener('pointerdown', e => {
     if (e.button === 0) {
       e.preventDefault();
-      const pausedBefore = paused;
       updateButton(0, true);
       if (e.target === canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -175,7 +173,6 @@ async function main() {
   });
   window.addEventListener('touchstart', e => {
     e.preventDefault();
-    const pausedBefore = paused;
     updateButton(0, true);
     if (e.target === canvas) {
       const rect = canvas.getBoundingClientRect();
@@ -194,6 +191,7 @@ async function main() {
   });
 
   let paused = false;
+  let pausedBefore = false;
   function pause(state) {
     if (paused !== state) {
       paused = state;
@@ -215,6 +213,7 @@ async function main() {
     if (!paused) {
       game.tick();
     }
+    pausedBefore = paused;
     for (let i = 0; i < screen.length; i++) {
       imageData32[i] = palette32[screen[i]];
     }
