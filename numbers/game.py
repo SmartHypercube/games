@@ -411,6 +411,9 @@ def bottom():
         if e.y + e.height >= 128:
             e.type = 'none'
             e.value = -1
+        if e.type == 'player' and e.y <= 0:
+            e.type = 'none'
+            e.value = -1
 
 
 def animation():
