@@ -136,8 +136,11 @@ async function main() {
   window.addEventListener('keydown', e => {
     if (e.key === ' ') {
       e.preventDefault();
-      pause(false);
+      const pausedBefore = paused;
       updateButton(0, true);
+      if (pausedBefore) {
+        pause(false);
+      }
       interacted = true;
     }
   });
@@ -150,13 +153,16 @@ async function main() {
   window.addEventListener('pointerdown', e => {
     if (e.button === 0) {
       e.preventDefault();
-      pause(false);
+      const pausedBefore = paused;
       updateButton(0, true);
       if (e.target === canvas) {
         const rect = canvas.getBoundingClientRect();
         const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width);
         const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height);
         game.event('pointerdown', 0, [x, y]);
+      }
+      if (pausedBefore) {
+        pause(false);
       }
       interacted = true;
     }
@@ -169,13 +175,16 @@ async function main() {
   });
   window.addEventListener('touchstart', e => {
     e.preventDefault();
-    pause(false);
+    const pausedBefore = paused;
     updateButton(0, true);
     if (e.target === canvas) {
       const rect = canvas.getBoundingClientRect();
       const x = Math.floor((e.touches[0].clientX - rect.left) * canvas.width / rect.width);
       const y = Math.floor((e.touches[0].clientY - rect.top) * canvas.height / rect.height);
       game.event('pointerdown', 0, [x, y]);
+    }
+    if (pausedBefore) {
+      pause(false);
     }
     interacted = true;
   });
